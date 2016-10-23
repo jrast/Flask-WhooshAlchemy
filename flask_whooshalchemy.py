@@ -17,6 +17,7 @@ from __future__ import absolute_import
 
 import flask_sqlalchemy
 
+
 import sqlalchemy
 
 from whoosh.qparser import OrGroup
@@ -103,7 +104,7 @@ class _QueryProxy(flask_sqlalchemy.BaseQuery):
         parameter to ``True``.
 
         '''
-            
+
         if not isinstance(query, unicode):
             query = unicode(query)
 
@@ -116,7 +117,7 @@ class _QueryProxy(flask_sqlalchemy.BaseQuery):
             # be a query.
 
             # XXX is this efficient?
-            return self.filter('null')
+            return self.filter(sqlalchemy.text('null'))
 
         result_set = set()
         result_ranks = {}
@@ -156,7 +157,7 @@ class _Searcher(object):
 
 
 def whoosh_index(app, model):
-    ''' Create whoosh index for ``model``, if one does not exist. If 
+    ''' Create whoosh index for ``model``, if one does not exist. If
     the index exists it is opened and cached. '''
 
     # gets the whoosh index for this model, creating one if it does not exist.
@@ -213,7 +214,7 @@ def _create_index(app, model):
 
     # change the query class of this model to our own
     model.query_class = _QueryProxy
-    
+
     return indx
 
 
