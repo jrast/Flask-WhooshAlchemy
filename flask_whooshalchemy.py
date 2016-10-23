@@ -10,13 +10,11 @@
     :license: BSD (see LICENSE.txt)
 
 '''
-
 from __future__ import with_statement
 from __future__ import absolute_import
 
 
 import flask_sqlalchemy
-
 
 import sqlalchemy
 
@@ -36,6 +34,12 @@ __searchable__ = '__searchable__'
 
 
 DEFAULT_WHOOSH_INDEX_NAME = 'whoosh_index'
+
+SUPPORTED_TYPES = (
+    sqlalchemy.types.Text,
+    sqlalchemy.types.String,
+    sqlalchemy.types.Unicode,
+)
 
 try:
     unicode
@@ -87,7 +91,6 @@ class _QueryProxy(flask_sqlalchemy.BaseQuery):
 
     def whoosh_search(self, query, limit=None, fields=None, or_=False):
         '''
-
         Execute text query on database. Results have a text-based
         match to the query, ranked by the scores from the underlying Whoosh
         index.
@@ -102,7 +105,6 @@ class _QueryProxy(flask_sqlalchemy.BaseQuery):
         By default, results will only be returned if they contain all of the
         query terms (AND). To switch to an OR grouping, set the ``or_``
         parameter to ``True``.
-
         '''
 
         if not isinstance(query, unicode):
@@ -172,11 +174,8 @@ def whoosh_index(app, model):
 def _get_analyzer(app, model):
     analyzer = getattr(model, '__analyzer__', None)
 
-    if not analyzer and app.config.get('WHOOSH_ANALYZER'):
-        analyzer = app.config['WHOOSH_ANALYZER']
-
     if not analyzer:
-        analyzer = StemmingAnalyzer()
+        analyzer = app.config.get('WHOOSH_ANALYZER', StemmingAnalyzer())
 
     return analyzer
 
@@ -228,10 +227,7 @@ def _get_whoosh_schema_and_primary_key(model, analyzer):
             schema[field.name] = whoosh.fields.ID(stored=True, unique=True)
             primary = field.name
 
-        if field.name in searchable and isinstance(field.type,
-                (sqlalchemy.types.Text, sqlalchemy.types.String,
-                    sqlalchemy.types.Unicode)):
-
+        if field.name in searchable and isinstance(field.type, SUPPORTED_TYPES):
             schema[field.name] = whoosh.fields.TEXT(analyzer=analyzer)
 
     return Schema(**schema), primary
