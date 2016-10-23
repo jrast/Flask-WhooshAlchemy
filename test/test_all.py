@@ -75,6 +75,8 @@ class Tests(TestCase):
         app = Flask(__name__)
 
         app.config['WHOOSH_BASE'] = os.path.join(tmp_dir, 'whoosh')
+        # TODO: Use SQLAlchemy event system instead
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
         return app
 
@@ -252,8 +254,7 @@ class Tests(TestCase):
         self.assertEqual(len(list(ObjectA.query.whoosh_search(u'test'))), 3)
 
         # chained query, operates as AND
-        self.assertEqual(len(list(ObjectA.query.whoosh_search(u'title').whoosh_search(u'test'))),
-                2)
+        self.assertEqual(len(list(ObjectA.query.whoosh_search(u'title').whoosh_search(u'test'))), 2)
 
 
     def test_invalid_attribute(self):
