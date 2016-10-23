@@ -151,16 +151,16 @@ class Tests(TestCase):
         l = list(ObjectA.query.whoosh_search(u'title'))
         self.assertEqual(len(l), 3)
         self.assertEqual(l[0].title, title2)
-        self.assertEqual(l[1].title, title3)
-        self.assertEqual(l[2].title, title1)
+        self.assertEqual(l[1].title, title1)
+        self.assertEqual(l[2].title, title3)
 
         db.session.delete(obj2)
         db.session.commit()
 
         l = list(ObjectA.query.whoosh_search(u'title'))
         self.assertEqual(len(l), 2)
-        self.assertEqual(l[0].title, title3)
-        self.assertEqual(l[1].title, title1)
+        self.assertEqual(l[0].title, title1)
+        self.assertEqual(l[1].title, title3)
 
         two_days_ago = datetime.date.today() - datetime.timedelta(2)
 
@@ -175,8 +175,8 @@ class Tests(TestCase):
                 .filter(ObjectA.created >= one_day_ago))
 
         self.assertEqual(len(recent), 2)
-        self.assertEqual(l[0].title, title3)
-        self.assertEqual(l[1].title, title1)
+        self.assertEqual(l[0].title, title1)
+        self.assertEqual(l[1].title, title3)
 
         three_days_ago = datetime.date.today() - datetime.timedelta(3)
 
@@ -184,8 +184,8 @@ class Tests(TestCase):
                 .filter(ObjectA.created >= three_days_ago))
 
         self.assertEqual(len(l), 3)
-        self.assertEqual(l[0].title, title3)
-        self.assertEqual(l[1].title, title1)
+        self.assertEqual(l[0].title, title1)
+        self.assertEqual(l[1].title, title3)
         self.assertEqual(l[2].title, title4)
 
         title5 = u'title with title as frequent title word'
@@ -196,15 +196,15 @@ class Tests(TestCase):
         l = list(ObjectA.query.whoosh_search(u'title'))
         self.assertEqual(len(l), 4)
         self.assertEqual(l[0].title, title5)
-        self.assertEqual(l[1].title, title3)
-        self.assertEqual(l[2].title, title1)
+        self.assertEqual(l[1].title, title1)
+        self.assertEqual(l[2].title, title3)
         self.assertEqual(l[3].title, title4)
 
         # test limit
         l = list(ObjectA.query.whoosh_search(u'title', limit=2))
         self.assertEqual(len(l), 2)
         self.assertEqual(l[0].title, title5)
-        self.assertEqual(l[1].title, title3)
+        self.assertEqual(l[1].title, title1)
 
         # XXX should replace this with a new function, but I can't figure out
         # how to do this cleanly with flask sqlalchemy and testing
